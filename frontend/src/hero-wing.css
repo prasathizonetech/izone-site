@@ -1,0 +1,30 @@
+/* Home hero wing cards:
+   Keep the full image visible (object-contain), but avoid empty "bars"
+   by filling the leftover space with a blurred cover background
+   of the same image (set via --hero-wing-img). */
+
+.hero-wing-frame {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-wing-frame::before {
+  /* Disabled: was creating a second visible image layer ("multiple photos"). */
+  content: none;
+  position: absolute;
+  inset: 0;
+  background-image: var(--hero-wing-img);
+  background-size: cover;
+  background-position: center;
+  border-radius: inherit;
+  /* no blur: prevents any shadow/halo look */
+  filter: none;
+  opacity: 1;
+  transform: none;
+  pointer-events: none;
+}
+
+.hero-wing-frame > * {
+  position: relative;
+  z-index: 1;
+}
