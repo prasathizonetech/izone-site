@@ -1,0 +1,15 @@
+stage('Maven Test') {
+    steps {
+        dir('backend') {
+            bat 'mvn test'
+        }
+    }
+}
+
+stage('Maven Build') {
+    steps {
+        dir('backend') {
+            bat 'mvn clean install -DskipTests=true'
+        }
+    }
+}

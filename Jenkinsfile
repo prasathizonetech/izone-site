@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        NODE_VERSION = "18"
-        PYTHON = "python3"
         VENV = "venv"
     }
 
@@ -11,14 +9,15 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/Prasath123/izone-site.git'
             }
         }
 
         stage('Frontend Install') {
             steps {
                 dir('frontend') {
-                    sh 'npm install'
+                    bat 'npm install'
                 }
             }
         }
@@ -26,7 +25,7 @@ pipeline {
         stage('Frontend Build') {
             steps {
                 dir('frontend') {
-                    sh 'npm run build'
+                    bat 'npm run build'
                 }
             }
         }
@@ -34,10 +33,10 @@ pipeline {
         stage('Backend Setup') {
             steps {
                 dir('backend') {
-                    sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install --upgrade pip
+                    bat '''
+                    python -m venv venv
+                    call venv\\Scripts\\activate
+                    python -m pip install --upgrade pip
                     pip install -r requirements.txt
                     '''
                 }
@@ -47,8 +46,8 @@ pipeline {
         stage('Backend Test') {
             steps {
                 dir('backend') {
-                    sh '''
-                    . venv/bin/activate
+                    bat '''
+                    call venv\\Scripts\\activate
                     python -m compileall .
                     '''
                 }
@@ -66,11 +65,9 @@ pipeline {
         always {
             echo 'Pipeline Finished'
         }
-
         success {
             echo 'Build Successful'
         }
-
         failure {
             echo 'Build Failed'
         }
