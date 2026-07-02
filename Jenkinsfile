@@ -1,16 +1,19 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS'
+    }
+
     environment {
-        VENV = "venv"
+        COMPOSE_PROJECT_NAME = 'izone-site'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/Prasath123/izone-site.git'
+                checkout scm
             }
         }
 
@@ -30,46 +33,28 @@ pipeline {
             }
         }
 
-        stage('Backend Setup') {
+        stage('Backend Install') {
             steps {
                 dir('backend') {
-                    bat '''
-                    python -m venv venv
-                    call venv\\Scripts\\activate
-                    python -m pip install --upgrade pip
-                    pip install -r requirements.txt
-                    '''
+                    bat 'pip install -r requirements.txt'
                 }
             }
         }
 
-        stage('Backend Test') {
+        stage('Docker Deploy') {
             steps {
-                dir('backend') {
-                    bat '''
-                    call venv\\Scripts\\activate
-                    python -m compileall .
-                    '''
-                }
-            }
-        }
-
-        stage('Archive Frontend') {
-            steps {
-                archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
+                bat 'docker compose down --remove-orphans'
+                bat 'docker compose up -d --build'
             }
         }
     }
 
     post {
-        always {
-            echo 'Pipeline Finished'
-        }
         success {
-            echo 'Build Successful'
+            echo 'Deployment successful!'
         }
         failure {
-            echo 'Build Failed'
+            echo 'Build failed. Check logs above.'
         }
     }
 }
